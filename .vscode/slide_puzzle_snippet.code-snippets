@@ -1,0 +1,30 @@
+{
+	"move_right": {
+    "prefix": "mr",
+    "body": [
+        "moveRight(board, scale, zero_pos, num_pos, num);"
+    ],
+    "description": "move_right"
+    },
+	"move_left": {
+    "prefix": "ml",
+    "body": [
+        "moveLeft(board, scale, zero_pos, num_pos, num);"
+    ],
+    "description": "move_left"
+    },
+	"move_up": {
+    "prefix": "mu",
+    "body": [
+        "moveUp(board, scale, zero_pos, num_pos, num);"
+    ],
+    "description": "move_up"
+    },
+	"move_down": {
+    "prefix": "md",
+    "body": [
+        "moveDown(board, scale, zero_pos, num_pos, num);"
+    ],
+    "description": "move_down"
+    },
+}

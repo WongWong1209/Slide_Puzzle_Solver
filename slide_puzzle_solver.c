@@ -11,11 +11,14 @@ void printBoard(int **board, int scale);
 void getNumPosition(int num, int scale, int **board, int *num_pos);
 void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int i, int fix3, int fix4, int fix5, int fix6, int j);
 void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int j, int fix1, int fix2, int fix6, int i, int start_row, int fix3);
+void swapBoard(int x1, int y1, int x2, int y2, int **board);
 
-char *file_path = "initial_03X03.txt";
-char *result_path = "result.txt";
+char *file_path = "./init/initial_13X13.txt";
+char *log_path = "./result/log.txt";
+char *step_path = "./result/steps.txt";
 FILE *fptr;
 FILE *resultFilePtr;
+FILE *stepFilePtr;
 int stopPoint;
 int lastAdjust = 0; // 0: row, 1: column
 int step = 0;
@@ -24,7 +27,8 @@ int main() {
     char scale_temp[10];
     int scale;
     fptr = fopen(file_path, "r");
-    resultFilePtr = fopen(result_path, "w");
+    resultFilePtr = fopen(log_path, "w");
+    stepFilePtr = fopen(step_path, "w");
 
     if (!fptr) {
         printf("Error: Could not open file %s\n", file_path);
@@ -179,7 +183,12 @@ void SolvePuzzle(int **board, int scale) {
     fprintf(resultFilePtr, "Final board:\n");
     printBoard(board, scale);
     printf("TOTAL STEP: %d", step);
-    fprintf(resultFilePtr, "TOTAL STEP: %d", step);
+    fprintf(resultFilePtr, "\n==--==--==--==--==--==--==--==--==\n");
+    fprintf(resultFilePtr, ">>> TOTAL STEP: %d\n", step);
+    fprintf(resultFilePtr, "==--==--==--==--==--==--==--==--==");
+    fprintf(stepFilePtr, "\n==--==--==--==--==--==--==--==--==\n");
+    fprintf(stepFilePtr, ">>> TOTAL STEP: %d\n", step);
+    fprintf(stepFilePtr, "==--==--==--==--==--==--==--==--==");
 }
 
 void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int i, int fix3, int fix4, int fix5, int fix6, int j) {
@@ -265,12 +274,11 @@ void moveUp(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         fprintf(resultFilePtr, "Move Up:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
-        int temp = board[x - 1][y];
-        board[x - 1][y] = 0;
-        board[x][y] = temp;
+        swapBoard(x-1, y, x, y, board);
         zero_pos[0]--;
         step++;
         printBoard(board, scale);
+        fprintf(stepFilePtr, "Move Up\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
@@ -280,12 +288,11 @@ void moveDown(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         fprintf(resultFilePtr, "Move Down:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
-        int temp = board[x + 1][y];
-        board[x + 1][y] = 0;
-        board[x][y] = temp;
+        swapBoard(x+1, y, x, y, board);
         zero_pos[0]++;
         step++;
         printBoard(board, scale);
+        fprintf(stepFilePtr, "Move Down\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
@@ -295,12 +302,11 @@ void moveRight(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         fprintf(resultFilePtr, "Move Right:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
-        int temp = board[x][y + 1];
-        board[x][y + 1] = 0;
-        board[x][y] = temp;
+        swapBoard(x, y+1, x, y, board);
         zero_pos[1]++;
         step++;
         printBoard(board, scale);
+        fprintf(stepFilePtr, "Move Right\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
@@ -310,14 +316,19 @@ void moveLeft(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         fprintf(resultFilePtr, "Move Left:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
-        int temp = board[x][y - 1];
-        board[x][y - 1] = 0;
-        board[x][y] = temp;
+        swapBoard(x, y-1, x, y, board);
         zero_pos[1]--; 
         step++;
         printBoard(board, scale);
+        fprintf(stepFilePtr, "Move Left\n");
         getNumPosition(num, scale, board, num_pos);
     }
+}
+
+void swapBoard(int x1, int y1, int x2, int y2, int **board) {
+    int temp = board[x1][y1];
+    board[x1][y1] = board[x2][y2];
+    board[x2][y2] = temp;
 }
 
 void printBoard(int **board, int scale) {

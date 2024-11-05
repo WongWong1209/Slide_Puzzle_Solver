@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <unistd.h>#include <unistd.h>
+
+void sleep_ms(int milliseconds) {
+    usleep(milliseconds * 1000);  // Convert to microseconds
+}
 
 void SolvePuzzle(int **board, int scale);
 void moveUp(int **board, int scale, int *zero_pos, int *num_pos, int num);
@@ -16,12 +21,8 @@ void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int
 void swapBoard(int x1, int y1, int x2, int y2, int **board);
 bool isSolved(int **board, int scale, int start_row, int start_col);
 
-char *file_path = "./init/initial_03X03.txt";
-char *log_path = "./result/log.txt";
-char *step_path = "./result/steps.txt";
+char *file_path = "./init/initial_13X13.txt";
 FILE *fptr;
-FILE *resultFilePtr;
-FILE *stepFilePtr;
 int stopPoint;
 int lastAdjust = 0; // 0: row, 1: column
 int step = 0;
@@ -33,8 +34,6 @@ int main() {
     char scale_temp[10];
     int scale;
     fptr = fopen(file_path, "r");
-    resultFilePtr = fopen(log_path, "w");
-    stepFilePtr = fopen(step_path, "w");
 
     if (!fptr) {
         printf("Error: Could not open file %s\n", file_path);
@@ -51,7 +50,6 @@ int main() {
     for (int i = 0; i < scale; i++) board[i] = malloc(scale * sizeof(int));
 
     //set initial board
-    fprintf(resultFilePtr, "Initial board:\n");
     for (int i = 0; i < scale; i++) {
         char line[100];
         fgets(line, sizeof(line), fptr);
@@ -59,13 +57,11 @@ int main() {
         int j = 0;
         while (token != NULL && j < scale) {
             board[i][j] = atoi(token);
-            fprintf(resultFilePtr, "%5d", board[i][j]);
             token = strtok(NULL, " \t\n");
             j++;
         }
-        fprintf(resultFilePtr, "\n");
+        printBoard(board, scale);
     }
-    puts("");
     fclose(fptr);
 
     SolvePuzzle(board, scale);
@@ -73,9 +69,6 @@ int main() {
     //free board
     for (int i = 0; i < scale; i++) free(board[i]);
     free(board);
-
-    fclose(resultFilePtr);
-    fclose(stepFilePtr);
 
     return 0;
 }
@@ -94,14 +87,6 @@ void SolvePuzzle(int **board, int scale) {
 
                 if(num == stopPoint) break;
                 num = j + 1 + i * scale;
-                
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "=======================================================================================================\n");
-                fprintf(resultFilePtr, "Goal: %d\n", num);
 
                 getNumPosition(num, scale, board, num_pos);
                 getNumPosition(0, scale, board, zero_pos);
@@ -189,7 +174,6 @@ void SolvePuzzle(int **board, int scale) {
         if(start_row == scale - 2 && start_col == scale - 2) break;
     }
 
-    puts("SECOND STAGE");
     start_row = scale - 2;
     start_col = scale - 3;
     int last_move = 0;
@@ -197,12 +181,8 @@ void SolvePuzzle(int **board, int scale) {
 
     while(!isSolved(board, scale, start_row, start_col)) {
         int cur_move; // 0: up, 1: right, 2: down, 3: left
-        do { 
-            cur_move = rand() % 4; 
-            printf("Calculate: %d\n", abs(cur_move-last_move));
-        } while(abs(cur_move-last_move) == 2);
+        do { cur_move = rand() % 4; } while(abs(cur_move-last_move) == 2);
 
-        puts("OUT!!!!");
         last_move = cur_move;
 
         switch(cur_move) {
@@ -221,16 +201,7 @@ void SolvePuzzle(int **board, int scale) {
         }
     }
 
-    fprintf(resultFilePtr, "Final board:\n");
     printBoard(board, scale);
-    printf("TOTAL STEP: %d\n", step);
-    printf("SECOND STAGE STEP: %d\n", step2);
-    fprintf(resultFilePtr, "\n==--==--==--==--==--==--==--==--==\n");
-    fprintf(resultFilePtr, ">>> TOTAL STEP: %d\n", step);
-    fprintf(resultFilePtr, "==--==--==--==--==--==--==--==--==");
-    fprintf(stepFilePtr, "\n==--==--==--==--==--==--==--==--==\n");
-    fprintf(stepFilePtr, ">>> TOTAL STEP: %d\n", step);
-    fprintf(stepFilePtr, "==--==--==--==--==--==--==--==--==");
 }
 
 bool isSolved(int **board, int scale, int start_row, int start_col) {
@@ -243,7 +214,6 @@ bool isSolved(int **board, int scale, int start_row, int start_col) {
 }
 
 void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int i, int fix3, int fix4, int fix5, int fix6, int j) {
-    printf("A\n");
     while(num_pos[0] != i + fix3 + fix5) {
         if(fix6 && num_pos[0] == scale - 2 && num_pos[1] == j) {
             lastAdjust = 4;
@@ -266,16 +236,10 @@ void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int
         }
         else moveLeft(board, scale, zero_pos, num_pos, num);
         lastAdjust = 0;
-        fprintf(resultFilePtr, "======================================================\n");
-        fprintf(resultFilePtr, "================                      ================\n");
-        fprintf(resultFilePtr, "================      Adjust Row      ================\n");
-        fprintf(resultFilePtr, "================                      ================\n");
-        fprintf(resultFilePtr, "======================================================\n");
     }
 }
 
 void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int j, int fix1, int fix2, int fix6, int i, int start_row, int fix3) {
-    printf("B\n");
     while(num_pos[1] != j + fix2 + fix6) {
         if(fix6 && num_pos[0] == scale - 2 && num_pos[1] == j) {
             lastAdjust = 4;
@@ -302,11 +266,6 @@ void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int
             moveRight(board, scale, zero_pos, num_pos, num);
         }
         lastAdjust = 1;
-        fprintf(resultFilePtr, "======================================================\n");
-        fprintf(resultFilePtr, "================                      ================\n");
-        fprintf(resultFilePtr, "================     Adjust Column    ================\n");
-        fprintf(resultFilePtr, "================                      ================\n");
-        fprintf(resultFilePtr, "======================================================\n");
     }
 }
 
@@ -324,7 +283,6 @@ void getNumPosition(int num, int scale, int **board, int *num_pos) {
 
 void moveUp(int **board, int scale, int *zero_pos, int *num_pos, int num) {
     if (zero_pos[0] > 0) {
-        fprintf(resultFilePtr, "Move Up:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
         swapBoard(x-1, y, x, y, board);
@@ -332,14 +290,12 @@ void moveUp(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         step++;
         step2++;
         printBoard(board, scale);
-        fprintf(stepFilePtr, "Move Up\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
 
 void moveDown(int **board, int scale, int *zero_pos, int *num_pos, int num) {
     if (zero_pos[0] < scale - 1) {
-        fprintf(resultFilePtr, "Move Down:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
         swapBoard(x+1, y, x, y, board);
@@ -347,14 +303,12 @@ void moveDown(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         step++;
         step2++;
         printBoard(board, scale);
-        fprintf(stepFilePtr, "Move Down\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
 
 void moveRight(int **board, int scale, int *zero_pos, int *num_pos, int num) {
     if (zero_pos[1] < scale - 1) {
-        fprintf(resultFilePtr, "Move Right:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
         swapBoard(x, y+1, x, y, board);
@@ -362,14 +316,12 @@ void moveRight(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         step++;
         step2++;
         printBoard(board, scale);
-        fprintf(stepFilePtr, "Move Right\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
 
 void moveLeft(int **board, int scale, int *zero_pos, int *num_pos, int num) {
     if (zero_pos[1] > 0) {
-        fprintf(resultFilePtr, "Move Left:\n");
         int x = zero_pos[0];
         int y = zero_pos[1];
         swapBoard(x, y-1, x, y, board);
@@ -377,7 +329,6 @@ void moveLeft(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         step++;
         step2++;
         printBoard(board, scale);
-        fprintf(stepFilePtr, "Move Left\n");
         getNumPosition(num, scale, board, num_pos);
     }
 }
@@ -389,10 +340,12 @@ void swapBoard(int x1, int y1, int x2, int y2, int **board) {
 }
 
 void printBoard(int **board, int scale) {
+    sleep_ms(50);
+    printf("\033[H\033[J");
     for(int i=0;i<scale;i++) {
         for(int j=0;j<scale;j++) {
-            fprintf(resultFilePtr, "%5d ", board[i][j]);
+            printf("%5d ", board[i][j]);
         }
-        fprintf(resultFilePtr, "\n");
+        printf("\n");
     }
 }

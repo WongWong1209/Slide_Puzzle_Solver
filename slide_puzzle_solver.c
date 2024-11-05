@@ -12,12 +12,13 @@ void getNumPosition(int num, int scale, int **board, int *num_pos);
 void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int i, int fix3, int fix4, int fix5, int fix6, int j);
 void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int j, int fix1, int fix2, int fix6, int i, int start_row, int fix3);
 
-char *file_path = "initial_13X13.txt";
+char *file_path = "initial_03X03.txt";
 char *result_path = "result.txt";
 FILE *fptr;
 FILE *resultFilePtr;
 int stopPoint;
 int lastAdjust = 0; // 0: row, 1: column
+int step = 0;
 
 int main() {
     char scale_temp[10];
@@ -113,7 +114,6 @@ void SolvePuzzle(int **board, int scale) {
 
             if(i == start_row) {
                 if(lastAdjust == 0 || lastAdjust == 1) {
-                    printf("JIBA5\n");
                     while(zero_pos[1] < scale - 2) moveRight(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[1] > scale - 2) moveLeft(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[0] > start_row) moveUp(board, scale, zero_pos, num_pos, num);
@@ -121,7 +121,6 @@ void SolvePuzzle(int **board, int scale) {
                     moveDown(board, scale, zero_pos, num_pos, num);
                 }
                 else if(lastAdjust == 3) {
-                    printf("JIBA6");
                     while(zero_pos[1] > scale - 2) moveLeft(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[1] < scale - 2) moveRight(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[0] > i + 1) moveUp(board, scale, zero_pos, num_pos, num);
@@ -142,7 +141,6 @@ void SolvePuzzle(int **board, int scale) {
             }
             else if(i == scale - 1) {
                 if(lastAdjust == 0 || lastAdjust == 1){
-                    printf("JIBA1\n");
                     while(zero_pos[0] > scale - 2) moveUp(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[0] < scale - 2) moveDown(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[1] > j) moveLeft(board, scale, zero_pos, num_pos, num);
@@ -150,7 +148,6 @@ void SolvePuzzle(int **board, int scale) {
                     moveRight(board, scale, zero_pos, num_pos, num);
                 }
                 else  if(lastAdjust == 4) {
-                    printf("JIBA3\n");
                     while(zero_pos[0] > scale - 2) moveUp(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[0] < scale - 2) moveDown(board, scale, zero_pos, num_pos, num);
                     while(zero_pos[1] > j + 1) moveLeft(board, scale, zero_pos, num_pos, num);
@@ -181,6 +178,8 @@ void SolvePuzzle(int **board, int scale) {
 
     fprintf(resultFilePtr, "Final board:\n");
     printBoard(board, scale);
+    printf("TOTAL STEP: %d", step);
+    fprintf(resultFilePtr, "TOTAL STEP: %d", step);
 }
 
 void adjustRow(int **board, int scale, int *zero_pos, int *num_pos, int num, int i, int fix3, int fix4, int fix5, int fix6, int j) {
@@ -270,6 +269,7 @@ void moveUp(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         board[x - 1][y] = 0;
         board[x][y] = temp;
         zero_pos[0]--;
+        step++;
         printBoard(board, scale);
         getNumPosition(num, scale, board, num_pos);
     }
@@ -284,6 +284,7 @@ void moveDown(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         board[x + 1][y] = 0;
         board[x][y] = temp;
         zero_pos[0]++;
+        step++;
         printBoard(board, scale);
         getNumPosition(num, scale, board, num_pos);
     }
@@ -298,6 +299,7 @@ void moveRight(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         board[x][y + 1] = 0;
         board[x][y] = temp;
         zero_pos[1]++;
+        step++;
         printBoard(board, scale);
         getNumPosition(num, scale, board, num_pos);
     }
@@ -312,6 +314,7 @@ void moveLeft(int **board, int scale, int *zero_pos, int *num_pos, int num) {
         board[x][y - 1] = 0;
         board[x][y] = temp;
         zero_pos[1]--; 
+        step++;
         printBoard(board, scale);
         getNumPosition(num, scale, board, num_pos);
     }

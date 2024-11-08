@@ -340,7 +340,7 @@ void swapBoard(int x1, int y1, int x2, int y2, int **board) {
 }
 
 void printBoard(int **board, int scale) {
-    sleep_ms(50);
+    sleep_ms(20);
     printf("\033[H\033[J");
     for(int i=0;i<scale;i++) {
         for(int j=0;j<scale;j++) {

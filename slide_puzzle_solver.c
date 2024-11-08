@@ -16,7 +16,7 @@ void adjustCol(int **board, int scale, int *zero_pos, int *num_pos, int num, int
 void swapBoard(int x1, int y1, int x2, int y2, int **board);
 bool isSolved(int **board, int scale, int start_row, int start_col);
 
-char *file_path = "./init/initial_03X03.txt";
+char *file_path = "./init/initial_13X13.txt";
 char *log_path = "./result/log.txt";
 char *step_path = "./result/steps.txt";
 FILE *fptr;
